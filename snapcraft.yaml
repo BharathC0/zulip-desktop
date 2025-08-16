@@ -1,0 +1,86 @@
+name: zulip
+version: 2.3.82
+summary: Zulip Desktop Client for Linux
+description: Zulip combines the immediacy of Slack with an email threading model. With Zulip, you can catch up on important conversations while ignoring irrelevant ones.
+confinement: strict
+grade: stable
+icon: snap/gui/icon.png
+apps:
+  zulip:
+    command: env TMPDIR=$XDG_RUNTIME_DIR desktop-launch $SNAP/zulip
+    plugs:
+      - desktop
+      - desktop-legacy
+      - home
+      - x11
+      - unity7
+      - browser-support
+      - network
+      - gsettings
+      - pulseaudio
+      - opengl
+      - network-bind
+      - system-files
+      - removable-media
+      - hardware-observe
+      - bluetooth
+      - cups-control
+      - network-observe
+      - system-observe
+      - process-control
+    environment:
+      GDK_BACKEND: x11
+      ELECTRON_NO_ATTACH_CONSOLE: "1"
+      ELECTRON_FORCE_WINDOW_MENU_BAR: "1"
+      # Fix for Ubuntu 24.10 compatibility
+      ELECTRON_DISABLE_SECURITY_WARNINGS: "1"
+      # Disable GPU acceleration if causing issues
+      ELECTRON_DISABLE_GPU: "0"
+      # Set proper display
+      DISPLAY: ":0"
+      # Fix for AppArmor issues
+      APPARMOR_DISABLE: "0"
+      # Ensure proper temp directory access
+      TMPDIR: "$XDG_RUNTIME_DIR"
+      # Fix for GTK theme issues
+      GTK_THEME: "Adwaita"
+      # Fix for font rendering
+      PANGOCAIRO_BACKEND: "fc"
+parts:
+  app:
+    plugin: dump
+    stage-packages:
+      - libasound2
+      - libgconf2-4
+      - libnotify4
+      - libnspr4
+      - libnss3
+      - libpcre3
+      - libpulse0
+      - libxss1
+      - libxtst6
+      # Additional packages for Ubuntu 24.10 compatibility
+      - libgtk-3-0
+      - libgdk-pixbuf2.0-0
+      - libcairo2
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libatk1.0-0
+      - libatk-bridge2.0-0
+      - libgirepository-1.0-1
+      - libglib2.0-0
+      - libdbus-1-3
+      - libdbus-glib-1-2
+    source: dist/linux-unpacked
+    after:
+      - desktop-gtk3
+    # Add build environment fixes
+    build-environment:
+      - DEBIAN_FRONTEND: noninteractive
+      - APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE: "1"
+    # Add build packages for better compatibility
+    build-packages:
+      - build-essential
+      - pkg-config
+      - libgtk-3-dev
+      - libwebkit2gtk-4.0-dev
